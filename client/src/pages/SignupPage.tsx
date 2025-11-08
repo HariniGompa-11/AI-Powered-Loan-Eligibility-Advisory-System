@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "../hooks/useNavigate";
 import { useAuth } from "../context/AuthContext";
-import { Brain, ArrowLeft, ArrowRight, Chrome } from "lucide-react";
+import { Brain, ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -50,10 +50,11 @@ export default function SignupPage() {
         type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
-
+  /*
   const handleGoogleSignup = () => {
     alert("Google Sign-up integration would be implemented here");
   };
+  */
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
