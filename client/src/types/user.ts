@@ -12,7 +12,15 @@ export interface UserProfile {
   yearsOfEmployment: number;
   annualSalary: number;
   collateralValue: number;
-  employmentType: "government" | "private" | "startup";
+
+  // ✅ Expanded employmentType to match SignupPage values
+  employmentType:
+    | "government"
+    | "private"
+    | "startup"
+    | "contract_based"
+    | "unemployed";
+
   previousLoans: boolean;
   previousLoansStatus?: string;
   previousLoanAmount?: number;

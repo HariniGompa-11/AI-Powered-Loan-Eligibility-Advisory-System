@@ -2,18 +2,54 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "../hooks/useNavigate";
 import { ArrowLeft, Edit2, Save, X } from "lucide-react";
+import type { UserProfile } from "../types/user"; // ✅ Adjust this import path if needed
 
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+
+  // ✅ Properly type formData with UserProfile
+  const [formData, setFormData] = useState<UserProfile>(
+    user || {
+      id: "",
+      email: "",
+      username: "",
+      gender: "",
+      age: 0,
+      education: "",
+      maritalStatus: "",
+      dependents: 0,
+      nationality: "",
+      jobType: "",
+      yearsOfEmployment: 0,
+      annualSalary: 0,
+      collateralValue: 0,
+      employmentType: "private",
+      previousLoans: false,
+      previousLoansStatus: "",
+      previousLoanAmount: 0,
+      totalEmiAmount: 0,
+      savingBankBalance: 0,
+      loanPurpose: "",
+      loanAmount: 0,
+      repaymentTermMonths: 0,
+      creditHistory: "",
+      rentIncome: 0,
+      interestIncome: 0,
+      numberOfCreditCards: 0,
+      averageCreditUtilization: 0,
+      latePaymentHistory: false,
+      loanInsurance: false,
+    }
+  );
+
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(user || {});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev: any) => ({
+    setFormData((prev) => ({
       ...prev,
       [name]:
         type === "checkbox"
@@ -25,12 +61,12 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    updateUser(formData as any);
+    updateUser(formData);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setFormData(user || {});
+    setFormData(user || formData);
     setIsEditing(false);
   };
 
@@ -41,7 +77,7 @@ export default function ProfilePage() {
     title: string;
     fields: Array<{
       label: string;
-      name: keyof typeof formData;
+      name: keyof UserProfile;
       type?: string;
       options?: Array<{ value: string; label: string }>;
     }>;
@@ -52,15 +88,15 @@ export default function ProfilePage() {
       </h3>
       <div className="grid md:grid-cols-2 gap-4">
         {fields.map((field) => (
-          <div key={field.name}>
+          <div key={String(field.name)}>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {field.label}
             </label>
             {isEditing ? (
               field.options ? (
                 <select
-                  name={field.name}
-                  value={String(formData[field.name] || "")}
+                  name={field.name as string}
+                  value={String(formData[field.name] ?? "")}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -73,7 +109,7 @@ export default function ProfilePage() {
               ) : field.type === "checkbox" ? (
                 <input
                   type="checkbox"
-                  name={field.name}
+                  name={field.name as string}
                   checked={Boolean(formData[field.name])}
                   onChange={handleChange}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
@@ -81,8 +117,8 @@ export default function ProfilePage() {
               ) : (
                 <input
                   type={field.type || "text"}
-                  name={field.name}
-                  value={String(formData[field.name] || "")}
+                  name={field.name as string}
+                  value={String(formData[field.name] ?? "")}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -93,7 +129,7 @@ export default function ProfilePage() {
                   ? formData[field.name]
                     ? "Yes"
                     : "No"
-                  : String(formData[field.name] || "N/A")}
+                  : String(formData[field.name] ?? "N/A")}
               </p>
             )}
           </div>
@@ -158,6 +194,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
+        {/* Personal Information */}
         <InfoSection
           title="Personal Information"
           fields={[
@@ -197,6 +234,7 @@ export default function ProfilePage() {
           ]}
         />
 
+        {/* Employment Details */}
         <InfoSection
           title="Employment Details"
           fields={[
@@ -219,11 +257,14 @@ export default function ProfilePage() {
                 { value: "government", label: "Government" },
                 { value: "private", label: "Private" },
                 { value: "startup", label: "Startup" },
+                { value: "contract_based", label: "Contract Based" },
+                { value: "unemployed", label: "Unemployed" },
               ],
             },
           ]}
         />
 
+        {/* Financial History */}
         <InfoSection
           title="Financial History"
           fields={[
@@ -251,6 +292,7 @@ export default function ProfilePage() {
           ]}
         />
 
+        {/* Loan Requirements */}
         <InfoSection
           title="Loan Requirements"
           fields={[
@@ -265,6 +307,7 @@ export default function ProfilePage() {
           ]}
         />
 
+        {/* Additional Income & Credit */}
         <InfoSection
           title="Additional Income & Credit"
           fields={[
