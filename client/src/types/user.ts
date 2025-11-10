@@ -12,12 +12,7 @@ export interface UserProfile {
   yearsOfEmployment: number;
   annualSalary: number;
   collateralValue: number;
-  employmentType:
-    | "government"
-    | "private"
-    | "startup"
-    | "contract_based"
-    | "unemployed";
+  employmentType: "government" | "private" | "startup";
   previousLoans: boolean;
   previousLoansStatus?: string;
   previousLoanAmount?: number;

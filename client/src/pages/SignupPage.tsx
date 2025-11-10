@@ -234,13 +234,6 @@ export default function SignupPage() {
       case 1:
         return (
           <div className="space-y-4">
-            <button
-              onClick={() => navigate("landing")}
-              className="absolute top-4 left-4 flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back</span>
-            </button>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Create Your Account
             </h2>
