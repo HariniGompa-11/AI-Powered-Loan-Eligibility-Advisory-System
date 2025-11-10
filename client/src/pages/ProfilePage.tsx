@@ -3,61 +3,17 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "../hooks/useNavigate";
 import { ArrowLeft, Edit2, Save, X } from "lucide-react";
 
-// ✅ Define the full user profile shape
-interface UserProfile {
-  username: string;
-  email: string;
-  gender?: string;
-  age?: number;
-  education?: string;
-  maritalStatus?: string;
-  dependents?: number;
-  nationality?: string;
-  jobType?: string;
-  yearsOfEmployment?: number;
-  annualSalary?: number;
-  collateralValue?: number;
-  employmentType?:
-    | "government"
-    | "private"
-    | "startup"
-    | "contract_based"
-    | "unemployed";
-  previousLoans?: boolean;
-  previousLoansStatus?: string;
-  previousLoanAmount?: number;
-  totalEmiAmount?: number;
-  savingBankBalance?: number;
-  loanPurpose?: string;
-  loanAmount?: number;
-  repaymentTermMonths?: number;
-  creditHistory?: string;
-  rentIncome?: number;
-  interestIncome?: number;
-  numberOfCreditCards?: number;
-  averageCreditUtilization?: number;
-  latePaymentHistory?: boolean;
-  loanInsurance?: boolean;
-}
-
 export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-
-  // ✅ Give formData a clear type
-  const [formData, setFormData] = useState<UserProfile>(
-    (user as UserProfile) || {
-      username: "",
-      email: "",
-    }
-  );
+  const [formData, setFormData] = useState(user || {});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [name]:
         type === "checkbox"
@@ -69,16 +25,15 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    updateUser(formData);
+    updateUser(formData as any);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setFormData((user as UserProfile) || { username: "", email: "" });
+    setFormData(user || {});
     setIsEditing(false);
   };
 
-  // ✅ Strongly type InfoSection props
   const InfoSection = ({
     title,
     fields,
@@ -86,7 +41,7 @@ export default function ProfilePage() {
     title: string;
     fields: Array<{
       label: string;
-      name: keyof UserProfile;
+      name: keyof typeof formData;
       type?: string;
       options?: Array<{ value: string; label: string }>;
     }>;
@@ -105,7 +60,7 @@ export default function ProfilePage() {
               field.options ? (
                 <select
                   name={field.name}
-                  value={String(formData[field.name] ?? "")}
+                  value={String(formData[field.name] || "")}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -127,7 +82,7 @@ export default function ProfilePage() {
                 <input
                   type={field.type || "text"}
                   name={field.name}
-                  value={String(formData[field.name] ?? "")}
+                  value={String(formData[field.name] || "")}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -138,7 +93,7 @@ export default function ProfilePage() {
                   ? formData[field.name]
                     ? "Yes"
                     : "No"
-                  : String(formData[field.name] ?? "N/A")}
+                  : String(formData[field.name] || "N/A")}
               </p>
             )}
           </div>
@@ -150,7 +105,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-8 px-4">
       <div className="max-w-5xl mx-auto">
-        {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
           <button
             onClick={() => navigate("home")}
@@ -190,7 +144,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Profile Header */}
         <div className="bg-white rounded-xl shadow-md p-8 mb-6">
           <div className="flex items-center space-x-6">
             <div className="w-24 h-24 bg-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
@@ -198,14 +151,13 @@ export default function ProfilePage() {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-gray-900">
-                {formData.username || "Unnamed User"}
+                {formData.username}
               </h1>
-              <p className="text-gray-600">{formData.email || "No email"}</p>
+              <p className="text-gray-600">{formData.email}</p>
             </div>
           </div>
         </div>
 
-        {/* Info Sections */}
         <InfoSection
           title="Personal Information"
           fields={[
@@ -267,8 +219,6 @@ export default function ProfilePage() {
                 { value: "government", label: "Government" },
                 { value: "private", label: "Private" },
                 { value: "startup", label: "Startup" },
-                { value: "contract_based", label: "Contract Based" },
-                { value: "unemployed", label: "Unemployed" },
               ],
             },
           ]}
