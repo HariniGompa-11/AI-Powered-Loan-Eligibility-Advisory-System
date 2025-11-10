@@ -131,6 +131,21 @@ export default function LandingPage() {
             </p>
           </div>
         </div>
+        {/*  
+        <div className="bg-blue-600 rounded-2xl p-12 text-center text-white shadow-xl">
+          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+          <p className="text-xl mb-8 opacity-90">
+            Join thousands of users making informed financial decisions with AI
+            assistance.
+          </p>
+          <button
+            onClick={() => navigate("signup")}
+            className="px-8 py-4 bg-white text-blue-600 rounded-lg font-semibold text-lg hover:bg-gray-100 transition shadow-lg"
+          >
+            Create Your Free Account
+          </button>
+        </div>
+        */}
       </div>
 
       <footer className="bg-gray-900 text-white py-8 mt-16">

@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "../hooks/useNavigate";
 import { useAuth } from "../context/AuthContext";
-import { Brain, ArrowLeft, ArrowRight } from "lucide-react";
+import { Brain, ArrowLeft, ArrowRight, Plus, Trash2 } from "lucide-react";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [step, setStep] = useState(1);
+  const [error, setError] = useState("");
+  const [additionalIncomes, setAdditionalIncomes] = useState<
+    Array<{ name: string; amount: string }>
+  >([]);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,11 +22,16 @@ export default function SignupPage() {
     maritalStatus: "",
     dependents: "",
     nationality: "",
-    jobType: "",
+    jobTitle: "",
     yearsOfEmployment: "",
     annualSalary: "",
     collateralValue: "",
-    employmentType: "private" as "government" | "private" | "startup",
+    employmentType: "private" as
+      | "government"
+      | "private"
+      | "startup"
+      | "contract_based"
+      | "unemployed",
     previousLoans: false,
     previousLoansStatus: "",
     previousLoanAmount: "",
@@ -31,9 +40,6 @@ export default function SignupPage() {
     loanPurpose: "",
     loanAmount: "",
     repaymentTermMonths: "",
-    creditHistory: "",
-    rentIncome: "",
-    interestIncome: "",
     numberOfCreditCards: "",
     averageCreditUtilization: "",
     latePaymentHistory: false,
@@ -49,15 +55,123 @@ export default function SignupPage() {
       [name]:
         type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
+    setError("");
   };
-  /*
-  const handleGoogleSignup = () => {
-    alert("Google Sign-up integration would be implemented here");
+
+  const validateStep = (): boolean => {
+    if (step === 1) {
+      if (!formData.email || !formData.password || !formData.confirmPassword) {
+        setError("All fields are required.");
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError(
+          "Passwords do not match. Please ensure both passwords are identical."
+        );
+        return false;
+      }
+      if (formData.password.length < 6) {
+        setError("Password must be at least 6 characters long.");
+        return false;
+      }
+    }
+
+    if (step === 2) {
+      if (Number(formData.age) <= 0) {
+        setError("Age must be greater than zero.");
+        return false;
+      }
+      if (Number(formData.dependents) < 0) {
+        setError("Number of dependents cannot be negative.");
+        return false;
+      }
+    }
+
+    if (step === 3) {
+      if (Number(formData.annualSalary) < 0) {
+        setError("Annual salary cannot be negative.");
+        return false;
+      }
+      if (Number(formData.collateralValue) < 0) {
+        setError("Collateral value cannot be negative.");
+        return false;
+      }
+      if (formData.employmentType === "contract_based") {
+        if (formData.yearsOfEmployment === "") {
+          setError(
+            "Years of employment is required for contract-based employment."
+          );
+          return false;
+        }
+        if (Number(formData.yearsOfEmployment) < 0) {
+          setError("Years of employment cannot be negative.");
+          return false;
+        }
+      }
+    }
+
+    if (step === 4) {
+      if (Number(formData.savingBankBalance) < 0) {
+        setError("Saving bank balance cannot be negative.");
+        return false;
+      }
+      if (formData.previousLoans) {
+        if (!formData.previousLoansStatus) {
+          setError("Please select previous loan status.");
+          return false;
+        }
+        if (
+          !formData.previousLoanAmount ||
+          Number(formData.previousLoanAmount) < 0
+        ) {
+          setError("Please enter a valid previous loan amount.");
+          return false;
+        }
+        if (!formData.totalEmiAmount || Number(formData.totalEmiAmount) < 0) {
+          setError("Please enter a valid total EMI amount.");
+          return false;
+        }
+      }
+    }
+
+    if (step === 5) {
+      if (Number(formData.loanAmount) < 0) {
+        setError("Loan amount cannot be negative.");
+        return false;
+      }
+      if (Number(formData.repaymentTermMonths) < 0) {
+        setError("Repayment term cannot be negative.");
+        return false;
+      }
+    }
+
+    if (step === 7) {
+      if (Number(formData.numberOfCreditCards) < 0) {
+        setError("Number of credit cards cannot be negative.");
+        return false;
+      }
+      if (Number(formData.averageCreditUtilization) < 0) {
+        setError("Average credit utilization cannot be negative.");
+        return false;
+      }
+      for (const income of additionalIncomes) {
+        if (Number(income.amount) < 0) {
+          setError("Income amount cannot be negative.");
+          return false;
+        }
+      }
+    }
+
+    return true;
   };
-  */
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateStep()) {
+      return;
+    }
+
     if (step < 7) {
       setStep(step + 1);
     } else {
@@ -71,22 +185,22 @@ export default function SignupPage() {
         maritalStatus: formData.maritalStatus,
         dependents: Number(formData.dependents),
         nationality: formData.nationality,
-        jobType: formData.jobType,
-        yearsOfEmployment: Number(formData.yearsOfEmployment),
+        jobType: formData.jobTitle,
+        yearsOfEmployment: Number(formData.yearsOfEmployment) || 0,
         annualSalary: Number(formData.annualSalary),
         collateralValue: Number(formData.collateralValue),
         employmentType: formData.employmentType,
         previousLoans: formData.previousLoans,
         previousLoansStatus: formData.previousLoansStatus,
-        previousLoanAmount: Number(formData.previousLoanAmount),
-        totalEmiAmount: Number(formData.totalEmiAmount),
+        previousLoanAmount: Number(formData.previousLoanAmount) || 0,
+        totalEmiAmount: Number(formData.totalEmiAmount) || 0,
         savingBankBalance: Number(formData.savingBankBalance),
         loanPurpose: formData.loanPurpose,
         loanAmount: Number(formData.loanAmount),
         repaymentTermMonths: Number(formData.repaymentTermMonths),
-        creditHistory: formData.creditHistory,
-        rentIncome: Number(formData.rentIncome),
-        interestIncome: Number(formData.interestIncome),
+        creditHistory: "good",
+        rentIncome: 0,
+        interestIncome: 0,
         numberOfCreditCards: Number(formData.numberOfCreditCards),
         averageCreditUtilization: Number(formData.averageCreditUtilization),
         latePaymentHistory: formData.latePaymentHistory,
@@ -95,6 +209,24 @@ export default function SignupPage() {
       login(userData);
       navigate("home");
     }
+  };
+
+  const addIncome = () => {
+    setAdditionalIncomes([...additionalIncomes, { name: "", amount: "" }]);
+  };
+
+  const removeIncome = (index: number) => {
+    setAdditionalIncomes(additionalIncomes.filter((_, i) => i !== index));
+  };
+
+  const handleIncomeChange = (
+    index: number,
+    field: "name" | "amount",
+    value: string
+  ) => {
+    const updated = [...additionalIncomes];
+    updated[index] = { ...updated[index], [field]: value };
+    setAdditionalIncomes(updated);
   };
 
   const renderStep = () => {
@@ -158,27 +290,6 @@ export default function SignupPage() {
                 placeholder="Re-enter your password"
               />
             </div>
-            {/*
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleGoogleSignup}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 transition"
-            >
-              <Chrome className="w-5 h-5" />
-              <span className="font-medium">Continue with Google</span>
-            </button>
-            */}
           </div>
         );
 
@@ -248,6 +359,7 @@ export default function SignupPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select Education</option>
+                <option value="uneducated">Uneducated</option>
                 <option value="high_school">High School</option>
                 <option value="bachelors">Bachelor's Degree</option>
                 <option value="masters">Master's Degree</option>
@@ -313,12 +425,12 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Job Type
+                Job Title
               </label>
               <input
                 type="text"
-                name="jobType"
-                value={formData.jobType}
+                name="jobTitle"
+                value={formData.jobTitle}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -328,17 +440,37 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Years of Employment
+                Employment Type
               </label>
-              <input
-                type="number"
-                name="yearsOfEmployment"
-                value={formData.yearsOfEmployment}
+              <select
+                name="employmentType"
+                value={formData.employmentType}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              >
+                <option value="government">Government</option>
+                <option value="private">Private</option>
+                <option value="startup">Startup</option>
+                <option value="contract_based">Contract Based</option>
+                <option value="unemployed">Unemployed</option>
+              </select>
             </div>
+
+            {formData.employmentType === "contract_based" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Years of Employment
+                </label>
+                <input
+                  type="number"
+                  name="yearsOfEmployment"
+                  value={formData.yearsOfEmployment}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -368,23 +500,6 @@ export default function SignupPage() {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Value of assets"
               />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Employment Type
-              </label>
-              <select
-                name="employmentType"
-                value={formData.employmentType}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="government">Government</option>
-                <option value="private">Private</option>
-                <option value="startup">Startup</option>
-              </select>
             </div>
           </div>
         );
@@ -499,6 +614,7 @@ export default function SignupPage() {
                 <option value="car">Car Purchase</option>
                 <option value="education">Education</option>
                 <option value="business">Business</option>
+                <option value="agriculture">Agriculture</option>
                 <option value="personal">Personal</option>
               </select>
             </div>
@@ -532,25 +648,6 @@ export default function SignupPage() {
                 placeholder="e.g., 12, 24, 36"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Credit History
-              </label>
-              <select
-                name="creditHistory"
-                value={formData.creditHistory}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              >
-                <option value="">Select Credit History</option>
-                <option value="excellent">Excellent (750+)</option>
-                <option value="good">Good (700-749)</option>
-                <option value="fair">Fair (650-699)</option>
-                <option value="poor">Poor (Below 650)</option>
-              </select>
-            </div>
           </div>
         );
 
@@ -560,35 +657,50 @@ export default function SignupPage() {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Additional Income
             </h2>
-            <p className="text-gray-600 mb-6">Step 6 of 7: Other Sources</p>
+            <p className="text-gray-600 mb-6">
+              Step 6 of 7: Other Sources (Optional)
+            </p>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Rent Income
-              </label>
-              <input
-                type="number"
-                name="rentIncome"
-                value={formData.rentIncome}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Monthly rent income"
-              />
+            <div className="space-y-4">
+              {additionalIncomes.map((income, index) => (
+                <div key={index} className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Income name"
+                    value={income.name}
+                    onChange={(e) =>
+                      handleIncomeChange(index, "name", e.target.value)
+                    }
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Amount"
+                    value={income.amount}
+                    onChange={(e) =>
+                      handleIncomeChange(index, "amount", e.target.value)
+                    }
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeIncome(index)}
+                    className="px-4 py-3 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
+              ))}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Interest Income
-              </label>
-              <input
-                type="number"
-                name="interestIncome"
-                value={formData.interestIncome}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Annual interest from investments"
-              />
-            </div>
+            <button
+              type="button"
+              onClick={addIncome}
+              className="w-full px-4 py-3 border-2 border-dashed border-blue-300 rounded-lg text-blue-600 font-medium hover:border-blue-400 hover:bg-blue-50 transition flex items-center justify-center space-x-2"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Add Another Income Source</span>
+            </button>
           </div>
         );
 
@@ -702,13 +814,21 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800 text-sm font-medium">{error}</p>
+              </div>
+            )}
             {renderStep()}
 
             <div className="flex space-x-4 mt-8">
               {step > 1 && (
                 <button
                   type="button"
-                  onClick={() => setStep(step - 1)}
+                  onClick={() => {
+                    setStep(step - 1);
+                    setError("");
+                  }}
                   className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 transition flex items-center justify-center"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />

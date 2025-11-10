@@ -7,7 +7,7 @@ export default function ProfilePage() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<Record<string, any>>(user || {});
+  const [formData, setFormData] = useState(user || {});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -41,7 +41,7 @@ export default function ProfilePage() {
     title: string;
     fields: Array<{
       label: string;
-      name: string;
+      name: keyof typeof formData;
       type?: string;
       options?: Array<{ value: string; label: string }>;
     }>;

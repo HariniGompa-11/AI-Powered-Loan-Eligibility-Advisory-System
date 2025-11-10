@@ -14,11 +14,19 @@ import {
   PlusCircle,
   Mic,
   Paperclip,
+  Trash2,
 } from "lucide-react";
 
 export default function HomePage() {
   const { user, logout } = useAuth();
-  const { chats, currentChat, addChat, setCurrentChat, addMessage } = useChat();
+  const {
+    chats,
+    currentChat,
+    addChat,
+    setCurrentChat,
+    addMessage,
+    deleteChat,
+  } = useChat();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,9 +41,18 @@ export default function HomePage() {
   };
 
   const handleNewChat = () => {
+    const now = new Date();
+    const dateStr = now.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
     const newChat = {
       id: Math.random().toString(36).substr(2, 9),
-      title: "New Conversation",
+      title: dateStr,
       messages: [],
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -43,6 +60,13 @@ export default function HomePage() {
     addChat(newChat);
     setCurrentChat(newChat);
     setMessages([]);
+  };
+
+  const handleDeleteChat = (chatId: string) => {
+    deleteChat(chatId);
+    if (currentChat?.id === chatId) {
+      setMessages([]);
+    }
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -191,24 +215,38 @@ export default function HomePage() {
           <div className="text-xs font-semibold text-gray-400 uppercase mb-2">
             Chats
           </div>
-          {filteredChats.map((chat) => (
-            <button
-              key={chat.id}
-              onClick={() => {
-                setCurrentChat(chat);
-                setMessages(
-                  chat.messages.map((msg) => ({
-                    role: msg.role,
-                    content: msg.content,
-                  }))
-                );
-              }}
-              className="w-full flex items-center space-x-3 px-3 py-2 hover:bg-gray-800 rounded-lg transition text-left"
-            >
-              <MessageSquare className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm truncate">{chat.title}</span>
-            </button>
-          ))}
+          {filteredChats.length === 0 ? (
+            <p className="text-gray-500 text-sm py-4">No chats yet</p>
+          ) : (
+            filteredChats.map((chat) => (
+              <div
+                key={chat.id}
+                className="flex items-center justify-between hover:bg-gray-800 rounded-lg transition group"
+              >
+                <button
+                  onClick={() => {
+                    setCurrentChat(chat);
+                    setMessages(
+                      chat.messages.map((msg) => ({
+                        role: msg.role,
+                        content: msg.content,
+                      }))
+                    );
+                  }}
+                  className="flex-1 flex items-center space-x-3 px-3 py-2 text-left"
+                >
+                  <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm truncate">{chat.title}</span>
+                </button>
+                <button
+                  onClick={() => handleDeleteChat(chat.id)}
+                  className="p-2 text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))
+          )}
         </div>
 
         <div className="p-4 border-t border-gray-700 space-y-2">
